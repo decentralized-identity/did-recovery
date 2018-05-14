@@ -1,0 +1,22 @@
+{
+  "name": "hdf-secrets",
+  "description": "Honey-Dipped Fuzzy Secrets",
+  "version": "0.0.1",
+  "homepage": "http://identity.foundation",
+  "license": "Apache 2",
+  "main": "index.js",
+  "dependencies": {
+    "hex2dec": "^1.0.1",
+    "jonah": "0.0.2",
+    "big-integer": "1.6.28",
+    "secret-sharing.js": "1.3.1",
+    "wordpos": "1.1.6",
+    "koa": "2.5.1",
+    "koa-router": "7.4.0",
+    "koa-mount": "3.0.0",
+    "koa-static": "4.0.2",
+    "koa-body": "2.5.0",
+    "wretch": "1.1.2",
+    "x-tag": "2.0.9-alpha"
+  }
+}

@@ -28,7 +28,7 @@ To start, assume the user enters the following secret and passphrase:
 
 Secret: `007`
 
-Passphrase: `I once sat next to chef Morimoto at the bar in Cin Cin restaurant and got his autograph on a napkin. He was with the head chef from the restaurant he opened in Napa.`
+Passphrase: `I sat next to Chef Morimoto at the bar in Cin Cin restaurant and got his autograph on a napkin. He was with the head chef from the restaurant he opened in Napa.`
 
 In common PBE schemes, the passphrase above would need to be input exactly as originally entered, which is a significant barrier to effective use. While these schemes are useful in some cases, we seek a method that allows for fuzzy variability of input that still results in the recovery of the encrypted data. To do so, we'll need more than just a simple PBE scheme.
 
@@ -36,7 +36,7 @@ In common PBE schemes, the passphrase above would need to be input exactly as or
 
 To augment our example input, a passphrase, with the fuzzy recollection feature, we propose the following construction:
 
-Assume the user's passphrase (above) is run through a well-known, standard filter that outputs an array of 14 significant input segments in accordance with an implementation-canonical dictionary: `['once', 'sat', 'next', 'chef', 'morimoto', 'bar', 'cin', 'restaurant', 'autograph', 'napkin', 'head', 'chef', 'opened', 'napa']`
+Assume the user's passphrase (above) is run through a well-known, standard filter that outputs an array of 12 significant input segments in accordance with an implementation-canonical dictionary: `['sat', 'next', 'chef', 'morimoto', 'bar', 'cin', 'restaurant', 'autograph', 'napkin', 'head', 'opened', 'napa']`
 
 Next we use an implementation of Shamir threshold secrets to encrypt our secret, `007`, with a total number of shares that matches our total passphrase segment count and an entropy-significant N threshold. The result of encrypting our secret with the Shamir threshold implementation is an array of hexadecimal strings: `['801c13a8e859b1d857267d2a418c740f', ...]`.
 
@@ -56,12 +56,17 @@ var honiedShares = shares.map((share, i) => {
 })
 ```
 
-The resulting array is 14 hexadecimal values that have been transformed to seemingly valid threshold secret shares, but have been honied by modifying their values in relation to the paired inputs. Exposed at rest, these shares appear as valid as any other set of threshold secret shares, but they are not valid for retrieval of the secret in any combination without reapplying the honied values.
+The resulting array is 12 hexadecimal values that have been transformed to seemingly valid threshold secret shares, but have been honied by modifying their values in relation to the paired inputs. Exposed at rest, these shares appear as valid as any other set of threshold secret shares, but they are not valid for retrieval of the secret in any combination without reapplying the honied values.
 
 ### Reassembly of Shares & Regeneration of Secret
 
-To reassemble the shares and regenerate the secret, we must reapply the honey values from our passphrase to the honied share values. If we store the honied values in the same order as the filtered passphrase values we used to modify them, and recollected the passphrase exactly, it would simply be a process of iterating the arrays and adding each passphrase segment's decimal value back into its corresponding modified share. However, if we recollected the passphrase differently than when we generated the shares, the array values would not align in some or all places, which would generate invalid shares when their value pairs are merged.
+To reassemble the shares and regenerate the secret, we must reapply the decimal value of the honey inputs from our passphrase to the honied share values. If we store the honied values in the same order as the filtered passphrase values we used to modify them, and recollected the passphrase exactly, it would simply be a process of iterating the arrays and adding each passphrase segment's decimal value back into its corresponding modified share. However, if we recollected the passphrase differently than when we generated the shares, or randomized the share positions, the array values would not align in some or all places, which would generate invalid shares when their value pairs are merged.
 
+##### The Brute Force is With You
+
+<!-- In order to recombine the honey inputs with their shares correctly, without an assumption of perfect alignment, we generate a version of each possible share and honey input. This results in 144 share values, of which only 12 are correct. -->
+
+To recombine and retrieve the secret, we iterate through all possible permutations and attempt to unlock with the Shamir implementation decryption function.
 
 
 ## Citations

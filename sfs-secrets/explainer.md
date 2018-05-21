@@ -64,7 +64,7 @@ To reassemble the shares and regenerate the secret, we must reapply the decimal 
 
 ##### The Brute Force is With You
 
-<!-- In order to recombine the honey inputs with their shares correctly, without an assumption of perfect alignment, we generate a version of each possible share and honey input. This results in 144 share values, of which only 12 are correct. -->
+In order to recombine the honey inputs with their shares correctly, without an assumption of perfect alignment, we generate a version of each possible share and honey input. This results in 144 share values, of which only 12 are correct.
 
 To recombine and retrieve the secret, we iterate through all possible permutations and attempt to unlock with the Shamir implementation decryption function.
 

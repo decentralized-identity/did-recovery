@@ -66,7 +66,7 @@ To reassemble the shares and regenerate the secret, we must reapply the decimal 
 
 ##### The Brute Force is With You
 
-In order to recombine the honey inputs with their shares correctly, without an assumption of perfect alignment, we generate a version of each possible share and honey input. This results in 144 share values, of which only 12 are correct. To recombine and retrieve the secret, we iterate through all possible permutations and attempt to unlock with the Shamir implementation decryption function.
+In order to recombine the honey inputs with their shares correctly (without an assumption of perfect alignment) we iterate through all possible combinations, adding back in our inputs and attempting decrypt the resulting values with the Shamir implementation decryption function.
 
 *Pseudo code for generation of possible share values:*
 
@@ -78,13 +78,13 @@ async function regenerateSecret(threshold, shares, inputs){
   var possibleShares = [].concat.apply([], inputs.map(input => {
     return shares.map(share => hexToDecimal(share) + inputToDecimal(input))
   }));
-  return await iteratePermutationsForSecret(threshold, possibleShares);
+  return await iteratecombinationsForSecret(threshold, possibleShares);
 }
 
 var secret = regenerateSecret(8, honiedShares, recollectedInputs);
 ```
 
-This process of iteration and recombination of all possible share permutations, and the time it takes to complete, is dependent on the T threshold and N total count of initial inputs used to generate the resulting set of honied shares. The larger the threshold and total set of inputs/shares, the longer the recovery process will take.
+This process of iteration and recombination of all possible share combinations, and the time it takes to complete, is dependent on the T threshold and N total count of initial inputs used to generate the resulting set of honied shares. The larger the threshold and total set of inputs/shares, the longer the recovery process will take.
 
 ## Entropy & Security
 
@@ -92,18 +92,31 @@ This process of iteration and recombination of all possible share permutations, 
 
 If we assume the input space can be any significant word (exclude pronouns, conjunctions, etc.) contained in a corpus of source dictionaries and other factors, such as biometric values, GPS coordinate grid references, etc., the number of possible inputs could easily number in the millions.
 
-In our example case, if we assume the attacker has full access to the honied shares and faces a total input space of 2 million possible inputs, an attacker would be required to evaluate a unique set of 24 million possible shares (12 shares * 2 million possible inputs) they had never seen before. Per our example case, the attacker would need to iterate the permutations resulting from the application of an R sample size matching the selected T threshold against the 24 million possible N shares, attempting to combine the shares of each permutation iteration to recover the secret.
+The following is a calculation that attempts to quantify the general level of entropy:
 
-In contrast, the user would generate a set of possible shares that is much smaller: N shares * N recollected inputs. For our example case this would result in 144 shares, for which the user would need to iterate all permutations of the T threshold to recover the secret.
+
+$$
+S = { \log_{2}(\frac{\mathcal{C}_k(\mathcal{M} \cdot n)}{\mathcal{C}_k(n)}) }
+$$
+
+In our example case, if we assume the attacker has full access to the honied shares and faces a total input space of 2 million possible inputs, an attacker would be required to evaluate a unique set of 12 million possible shares (12 shares * 1 million possible inputs) they had never seen before. Per our example case, the attacker would need to iterate the combinations resulting from the application of an R sample size matching the selected T threshold against the 12 million possible N shares, attempting to combine the shares of each combination to recover the secret.
+
+*Entropy calculation of T threshold 8 of n set 12 example:*
+
+$$
+S = { \log_{2}(\frac{\mathcal{C}_{12}({1,000,000} \cdot 12)}{\mathcal{C}_8(12 )}) }
+$$
+
+In contrast, the user would generate a set of possible shares that is much smaller: N shares * N recollected inputs. For our example case this would result in 144 shares, for which the user would need to iterate all combinations of the T threshold to recover the secret.
 
 This raises critical questions as to the viability of this construction:
 
 1. What is the disparity between the raw and effective entropy when we assume the inputs are human-meaningful?
 2. Is the effective entropy high enough that the honied shares can be exposed at rest to attackers and still secure against a targeted brute force attack?
-3. Because the honied shares will likely not align with the recollected input set, is the user's permutation iteration of the N shares * N recollected inputs too high a burden to effectively recover within allowable tolerances?
-4. Assuming all the questions above are satisfied, how likely is it that a user can be guided to generate human-meaningful inputs that:
+3. Because the honied shares will likely not align with the recollected input set, is the user's combination iteration of the N shares * N recollected inputs too high a burden to effectively recover within allowable tolerances?
+4. Assuming all the questions above are satisfied, how likely is it a user can be guided to generate human-meaningful inputs that:
     - Are not composed of weak, generic inputs that share common traits which reduce the probable input range for attackers.
-    - Are unlikely to be inputs the user frequently exposes through other mediums that open up a user to specific analysis and targeted, efficient attack.
+    - Are unlikely to be inputs the user frequently exposes through other mediums, opening them up to specific analysis and targeted, efficient attack.
 
 ## Conclusion
 

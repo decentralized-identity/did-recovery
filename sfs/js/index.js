@@ -61,10 +61,20 @@ function filterPassphrase(){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  var phrase = localStorage.passphrase;
-  if (phrase) generate_form.elements.passphrase.value = phrase;
+  generate_form.elements.passphrase.value = localStorage.passphrase || '';
+  generate_form.elements.secret.value = localStorage.secret || '';
+  recover_text.value = localStorage.recover_text || '';
   filterPassphrase();
 })
+
+generate_form.elements.secret.addEventListener('blur', function(e){
+  localStorage.secret = this.value;
+});
+
+recover_text.addEventListener('blur', function(e){
+  localStorage.recover_text = this.value;
+});
+
 
 var keyTimeout = null;
 passphrase.addEventListener('keyup', function(e){
@@ -72,15 +82,26 @@ passphrase.addEventListener('keyup', function(e){
   keyTimeout = setTimeout(filterPassphrase, 750);
 });
 
+function shuffleArray(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function generateShares(secret, threshold, factors){
   var payload = {};
-  var key = secrets.str2hex(secret) || secrets.random(128);
+  var key = hexdec.wordToHex(secret) || secrets.random(128);
   var shares = secrets.share(key, factors.length, threshold);
   payload.key = key;
-  payload.shares = factors.map((obj, i) => {
+  payload.threshold = threshold;
+  payload.shares = shuffleArray(factors.map((obj, i) => {
     obj.data = hexdec.decToHex(bigInt(hexdec.hexToDec(shares[i])).minus(hexdec.wordToDec(obj.factor)).toString()).replace('0x', '')
     return obj;
-  });
+  }));
+
+  
   return payload;
 }
 
@@ -117,15 +138,27 @@ generate_form.addEventListener('submit', function(e){
                     </dd>`;
     }, `<dt>Secret <i>hexadecimal</i></dt><dd><data value="${payload.key}">${payload.key}</data></dd><dt>Shares</dt>`);
 
-    var comb = secrets.combine( [
-      assembleShare(payload.shares[1].factor, payload.shares[1].data),
-      assembleShare(payload.shares[3].factor, payload.shares[3].data),
-      assembleShare(payload.shares[5].factor, payload.shares[5].data)
-    ] );
-    console.log( comb === payload.key  );
+    console.log(payload.key);
 }
 
 });
+
+var currentWorker;
+
+function workerMessage(e){
+  if (!e.data._subworker) {
+    console.log(`Finished in ${ e.data.duration } seconds using ${ e.data.workers } workers`);
+    console.log(e.data.secret ? 'Secret found: ' + hexdec.hexToWord(e.data.secret) : 'Secret recovery failed');
+    if (currentWorker) currentWorker.terminate();
+  }
+}
+
+function createWorker(){
+  if (currentWorker) currentWorker.terminate();
+  currentWorker = new Worker('js/worker.js');
+  currentWorker.onmessage = workerMessage;
+  return currentWorker;
+}
 
 recovery_form.addEventListener('submit', function(e){
 
@@ -151,12 +184,13 @@ recovery_form.addEventListener('submit', function(e){
       }).post().json(words => {
         console.log(words);
         toggleGenerator();
-        var comb = secrets.combine(words.map((word, i) => {
-          return assembleShare(word, payload.shares[i].data);
-        }));
-        var success = comb === payload.key;
-        console.log(success);
-        if (success) console.log(comb);
+
+        createWorker().postMessage({
+          type: 'inputs',
+          inputs: words,
+          payload: payload
+        });
+
       }).catch(e => {
     
       });

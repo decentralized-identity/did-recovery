@@ -66,7 +66,7 @@ To reassemble the shares and regenerate the secret, we must reapply the decimal 
 
 ##### The Brute Force is With You
 
-In order to recombine the honey inputs with their shares correctly (without an assumption of perfect alignment) we iterate through all possible combinations, adding back in our inputs and attempting decrypt the resulting values with the Shamir implementation decryption function.
+In order to recombine the honey inputs with their shares correctly (without an assumption of perfect alignment) we iterate through all possible permutations of inputs, add back in the input values to all non-repeating share combinations, and attempting decrypt the resulting values with the Shamir implementation decryption function.
 
 *Pseudo code for generation of possible share values:*
 
@@ -90,24 +90,42 @@ This process of iteration and recombination of all possible share combinations, 
 
 > Note: The author of this paper is not a cryptographer, and as such is not qualified to reliably assess the effective entropy of a system based on human-friendly inputs. The best this author can do is postulate about raw entropy and general security, but the calculations below could be wrong, and the author welcomes your correction and feedback.
 
-If we assume the input space can be any significant word (exclude pronouns, conjunctions, etc.) contained in a corpus of source dictionaries and other factors, such as biometric values, GPS coordinate grid references, etc., the number of possible inputs could easily number in the millions.
+If we assume the honey input message space includes significant words and names that adhere to a standard filter (excludes pronouns, conjunctions, etc.), as well as other factors, such as biometric values, GPS coordinate grid references, etc., the number of possible inputs could easily number in the millions. To calculate the entropy of the construction requires examining the combinatorial probability of an attacker guessing not only a correct set of honey inputs that exceeds the threshold used during construction, but also having to combine each input with the exact share it was paired with during the honey transform phase.
 
-The following is a calculation that attempts to quantify the general level of entropy:
-
-
-$$
-S = { \log_{2}(\frac{\mathcal{C}_k(\mathcal{M} \cdot n)}{\mathcal{C}_k(n)}) }
-$$
-
-In our example case, if we assume the attacker has full access to the honied shares and faces a total input space of 2 million possible inputs, an attacker would be required to evaluate a unique set of 12 million possible shares (12 shares * 1 million possible inputs) they had never seen before. Per our example case, the attacker would need to iterate the combinations resulting from the application of an R sample size matching the selected T threshold against the 12 million possible N shares, attempting to combine the shares of each combination to recover the secret.
-
-*Entropy calculation of T threshold 8 of n set 12 example:*
+The following is an attempt at calculating the entropy bits of the scheme. It assumes at least one correct set of inputs exists within all permutations of the total message space _M_, when iterated choosing a share count _n_ that meets or exceeds the threshold used during construction. To ensure that the share count chosen will always meet or exceed the threshold, the attacker would have to select _n - 1_, wherein _n_ is the total share count.
 
 $$
-S = { \log_{2}(\frac{\mathcal{C}_{12}({1,000,000} \cdot 12)}{\mathcal{C}_8(12 )}) }
+  S = {
+    \log_{2}(
+      \mathcal{V}_{n-1}(\mathcal{M})
+    ) 
+  }
 $$
 
-In contrast, the user would generate a set of possible shares that is much smaller: N shares * N recollected inputs. For our example case this would result in 144 shares, for which the user would need to iterate all combinations of the T threshold to recover the secret.
+The author suspects attackers would likely optimize their attempts in a number of ways:
+
+1. Use a smaller threshold count for permutation iteration based on known threshold norms used in popular secret construction implementations.
+2. Spawn multiple threads/jobs (one per combination?) to iterate the permutations against all unique, non-repeating combination of the selected threshold. The assumption of the author is that iteration of permutations and input/share assembly across multiple share combination sets in parallel would reach a match sooner by compounding match distribution probabilities.
+
+In our example case the user created 12 shares (_n_), thus (without optimization) the attacker would be required to iterate all permutations of the assumed 1 million input message space using 11 as the section number (_n - 1_). The number of bits is then equal to the log 2 result of the number of permutations.
+
+$$
+  {
+    \log_{2}(
+      \mathcal{V}_{11}(1,000,000)
+    ) = 189.75
+  }
+$$
+
+In contrast, the user is only required to iterate and attempt share reassembly for the number of permutations resulting from the total count of _I_ inputs they recollect, using a selection set of the exact threshold they used, in this case 8:
+
+$$
+  {
+    \log_{2}(
+      \mathcal{V}_{8}(\mathcal{I})
+    )
+  }
+$$
 
 This raises critical questions as to the viability of this construction:
 

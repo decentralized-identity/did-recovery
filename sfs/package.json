@@ -11,6 +11,7 @@
     "big-integer": "1.6.28",
     "secret-sharing.js": "1.3.1",
     "wordpos": "1.1.6",
+    "js-combinatorics": "0.5.3",
     "koa": "2.5.1",
     "koa-router": "7.4.0",
     "koa-mount": "3.0.0",

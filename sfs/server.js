@@ -19,7 +19,7 @@ router.get('/', async (ctx, next) => {
 });
 
 router.post('/api/wordfilter', async (ctx, next) => {
-  console.log(ctx.request.body);
+  // console.log(ctx.request.body);
   var words = [];
   var json = ctx.request.body;
   if (json) {
@@ -29,7 +29,7 @@ router.post('/api/wordfilter', async (ctx, next) => {
       phrase.trim().toLowerCase().match(/\w+/g).filter(function(word, i){
         promises.push(new Promise(function(resolve, reject) {
           wordpos.getPOS(word, results => {
-            console.log(results.rest);
+            // console.log(results.rest);
             if (results.nouns[0] || results.rest[0]) words[i] = word;
             resolve();
           });

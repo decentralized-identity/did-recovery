@@ -71,17 +71,33 @@ In order to recombine the honey inputs with their shares correctly (without an a
 *Pseudo code for generation of possible share values:*
 
 ```javascript
+var secretHash = 'a0ccfef874...';
 var recollectedInputs = ['sitting', 'next', 'chef', ...];
 var honiedShares = ['801c13a8e859b1d857267d2a418c740f', ...];
 
-async function regenerateSecret(threshold, shares, inputs){
-  var possibleShares = [].concat.apply([], inputs.map(input => {
-    return shares.map(share => hexToDecimal(share) + inputToDecimal(input))
-  }));
-  return await iteratecombinationsForSecret(threshold, possibleShares);
+async function retrieveSecret(threshold, shares, inputs, hash){
+  var secret;
+  var inputCombinations = combinations(inputs, threshold);
+  var inputSet = inputCombinations.next();
+  while (inputSet) {
+    var sharePermutations = permutations(honiedShares, threshold);
+    await sharePermutations.find(shareSet => {
+      var shares = recollectedInputs.map((input, i) => assembleShare(input, shareSet[i]));
+      var output = secrets.combine(shares);
+      if (generateHash(output) === hash) {
+        secret = output;
+        return true;
+      }
+    });
+    inputSet = inputCombinations.next();
+  }
+  return secret;
 }
 
-var secret = regenerateSecret(8, honiedShares, recollectedInputs);
+var secret = retrieveSecret(8, honiedShares, recollectedInputs, secretHash);
+
+if (secret) console.log('Yay, found your secret!');
+else console.warn('Nice try, bad guy.');
 ```
 
 This process of iteration and recombination of all possible share combinations, and the time it takes to complete, is dependent on the T threshold and N total count of initial inputs used to generate the resulting set of honied shares. The larger the threshold and total set of inputs/shares, the longer the recovery process will take.
@@ -107,7 +123,7 @@ The author suspects attackers would likely optimize their attempts in a number o
 1. Use a smaller threshold count for permutation iteration based on known threshold norms used in popular secret construction implementations.
 2. Spawn multiple threads/jobs (one per combination?) to iterate the permutations against all unique, non-repeating combination of the selected threshold. The assumption of the author is that iteration of permutations and input/share assembly across multiple share combination sets in parallel would reach a match sooner by compounding match distribution probabilities.
 
-In our example case the user created 12 shares (_n_), thus (without optimization) the attacker would be required to iterate all permutations of the assumed 1 million input message space using 11 as the section number (_n - 1_). The number of bits is then equal to the log 2 result of the number of permutations.
+In our example case, the user created 12 shares (_n_), thus (without optimization) the attacker would be required to iterate all permutations of an assumed 1 million input message space using 11 as the set section size (_n - 1_). The number of bits is then equal to the log 2 result of the number of permutations.
 
 $$
   {
@@ -117,28 +133,28 @@ $$
   }
 $$
 
-In contrast, the user is only required to iterate and attempt share reassembly for the number of permutations resulting from the total count of _I_ inputs they recollect, using a selection set of the exact threshold they used, in this case 8:
+In contrast, the user is only required to iterate and attempt share reassembly for the number of permutations based on the inputs they recollect - we'll assume the user entered 12 inputs, and a set selection size that exactly matches the threshold they used, in this case 8:
 
 $$
   {
     \log_{2}(
-      \mathcal{V}_{8}(\mathcal{I})
+      \mathcal{V}_{8}(12)
     )
   }
 $$
 
-This raises critical questions as to the viability of this construction:
+There are a number of important questions as we consider the viability of this construction:
 
 1. What is the disparity between the raw and effective entropy when we assume the inputs are human-meaningful?
 2. Is the effective entropy high enough that the honied shares can be exposed at rest to attackers and still secure against a targeted brute force attack?
-3. Because the honied shares will likely not align with the recollected input set, is the user's combination iteration of the N shares * N recollected inputs too high a burden to effectively recover within allowable tolerances?
+3. Because the honied shares will likely not align with the recollected input set, is the level of computation required from users recovering their secrets too high to effectively recover within a feasible range?
 4. Assuming all the questions above are satisfied, how likely is it a user can be guided to generate human-meaningful inputs that:
     - Are not composed of weak, generic inputs that share common traits which reduce the probable input range for attackers.
     - Are unlikely to be inputs the user frequently exposes through other mediums, opening them up to specific analysis and targeted, efficient attack.
 
 ## Conclusion
 
-As previously stated, the author is not a cryptographer, and the intent of this paper is to provide a hypothesis about one possible solution. It is the hope of the author that you help evaluate this proposal in light of the questions and issues it presents, to determine the efficacy and viability of what it proposes.
+As previously stated, the author is not a cryptographer, and the intent of this paper is to provide a hypothesis about one possible solution for fuzziness in recovery of secrets. It is the hope of the author that you will help evaluate this proposal in light of the questions and issues it presents, to determine the efficacy and viability of what it proposes.
 
 ## Citations
 

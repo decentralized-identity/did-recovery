@@ -118,6 +118,8 @@ $$
   }
 $$
 
+![Entropy Equation](images/entropy-equation.gif)
+
 The author suspects attackers would likely optimize their attempts in a number of ways:
 
 1. Use a smaller threshold count for permutation iteration based on known threshold norms used in popular secret construction implementations.
@@ -133,6 +135,8 @@ $$
   }
 $$
 
+![Attacker Entropy Example](images/attacker-entropy-example.gif)
+
 In contrast, the user is only required to iterate and attempt share reassembly for the number of permutations based on the inputs they recollect - we'll assume the user entered 12 inputs, and a set selection size that exactly matches the threshold they used, in this case 8:
 
 $$
@@ -142,6 +146,8 @@ $$
     )
   }
 $$
+
+![User Entropy Example](images/user-entropy-example.gif)
 
 There are a number of important questions as we consider the viability of this construction:
 

@@ -143,21 +143,65 @@ generate_form.addEventListener('submit', function(e){
 
 });
 
-var currentWorker;
+var workers = {};
 
-function workerMessage(e){
-  if (!e.data._subworker) {
-    console.log(`Finished in ${ e.data.duration } seconds using ${ e.data.workers } workers`);
-    console.log(e.data.secret ? 'Secret found: ' + hexdec.hexToWord(e.data.secret) : 'Secret recovery failed');
-    if (currentWorker) currentWorker.terminate();
-  }
+function logResults(start, workerCount, guessCount, secret){
+  console.log(`Tried ${ guessCount } guesses in ${ (new Date().getTime() - start) / 1000 } seconds using ${ workerCount } workers`);
+  console.log(secret ? 'Secret found: ' + hexdec.hexToWord(secret) : 'Secret recovery failed');
 }
 
-function createWorker(){
-  if (currentWorker) currentWorker.terminate();
-  currentWorker = new Worker('js/worker.js');
-  currentWorker.onmessage = workerMessage;
-  return currentWorker;
+function killWorkers(){
+  for (let z in workers) workers[z].terminate();
+  workers = {};
+}
+
+function attemptRecovery(inputs, payload){
+  killWorkers();
+  var workerID = 0;
+  var workerCount = 0;
+  var workerLimit = 5;
+  var guessCount = 0;
+  var secretFound = false;
+  var start = new Date().getTime();
+  var shares = payload.shares.map(share => hexdec.hexToDec(share.data));
+  var inputs = inputs.map(input => hexdec.wordToDec(input.toLowerCase()));
+  var inputCombinations = Combinatorics.combination(inputs, payload.threshold);
+
+  function fireWorker(inputSet){
+    let worker = new Worker('js/worker.js')
+    workerCount++;
+    workers[workerID++] = worker;
+    worker.onmessage = workerResponse;
+    worker.postMessage({
+      id: workerID,
+      inputs: inputSet,
+      payload: payload,
+      shares: shares
+    });
+  }
+
+  function workerResponse(e){
+    var secret = e.data.secret;
+    guessCount += e.data.guesses;
+    if (secret){
+      secretFound = true;
+      killWorkers();
+      logResults(start, workerID, guessCount, secret);
+    }
+    else if (!secretFound) {
+      workerCount--;
+      workers[e.data.id].terminate();
+      delete workers[e.data.id];
+      let inputSet = inputCombinations.next();
+      if (inputSet) fireShareWorker(inputSet);
+      else if (!workerCount) logResults(start, workerID, guessCount);
+    }
+  }
+
+  while (workerCount < workerLimit) {
+    let inputSet = inputCombinations.next();
+    if (inputSet) fireWorker(inputSet);
+  }
 }
 
 recovery_form.addEventListener('submit', function(e){
@@ -185,11 +229,7 @@ recovery_form.addEventListener('submit', function(e){
         console.log(words);
         toggleGenerator();
 
-        createWorker().postMessage({
-          type: 'inputs',
-          inputs: words,
-          payload: payload
-        });
+        attemptRecovery(words, payload);
 
       }).catch(e => {
     

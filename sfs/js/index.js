@@ -122,7 +122,7 @@ generate_form.addEventListener('submit', function(e){
   var thresholdCount = Number(this.elements.threshold.value);
 
   if (shareCount > 3 && shareCount > thresholdCount) {
-    
+      
     //toggleGenerator(true);
     
     
@@ -139,7 +139,7 @@ generate_form.addEventListener('submit', function(e){
     }, `<dt>Secret <i>hexadecimal</i></dt><dd><data value="${payload.key}">${payload.key}</data></dd><dt>Shares</dt>`);
 
     console.log(payload.key);
-}
+  }
 
 });
 

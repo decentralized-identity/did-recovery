@@ -110,15 +110,17 @@ If we assume the honey input message space includes significant words and names 
 
 The following is an attempt at calculating the entropy bits of the scheme. It assumes at least one correct set of inputs exists within all permutations of the total message space _M_, when iterated choosing a share count _n_ that meets or exceeds the threshold used during construction. To ensure that the share count chosen will always meet or exceed the threshold, the attacker would have to select _n - 1_, wherein _n_ is the total share count.
 
+<!--
 $$
   S = {
     \log_{2}(
-      \mathcal{V}_{n-1}(\mathcal{M})
+      {\mathcal{V}_{n - 1}(\mathcal{M}) \over{\mathcal{C}_{n - 1}(n)}}
     ) 
   }
 $$
+-->
 
-![Entropy Equation](images/entropy-equation.gif)
+![Entropy Equation](images/entropy-equation.png)
 
 The author suspects attackers would likely optimize their attempts in a number of ways:
 
@@ -127,23 +129,25 @@ The author suspects attackers would likely optimize their attempts in a number o
 
 In our example case, the user created 12 shares (_n_), thus (without optimization) the attacker would be required to iterate all permutations of an assumed 1 million input message space using 11 as the set section size (_n - 1_). The number of bits is then equal to the log 2 result of the number of permutations.
 
+<!--
 $$
   {
     \log_{2}(
-      \mathcal{V}_{11}(1,000,000)
-    ) = 189.75
+      {\mathcal{V}_{11}(1,000,000) \over{\mathcal{C}_{11}(12)}}
+    ) = 215.66
   }
 $$
+-->
 
-![Attacker Entropy Example](images/attacker-entropy-example.gif)
+![Attacker Entropy Example](images/attacker-entropy-example.png)
 
-In contrast, the user is only required to iterate and attempt share reassembly for the number of permutations based on the inputs they recollect - we'll assume the user entered 12 inputs, and a set selection size that exactly matches the threshold they used, in this case 8:
+In contrast, the user is only required to iterate and attempt share reassembly for the number of permutations based on the inputs they recollect. We'll assume the user entered 14 inputs, a worst case condition that only 8 were correct, and use a set selection size that exactly matches the threshold they used:
 
 $$
   {
     \log_{2}(
-      \mathcal{V}_{8}(12)
-    )
+      \mathcal{V}_{8}(14)
+    ) = 26.85
   }
 $$
 

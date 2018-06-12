@@ -127,14 +127,14 @@ The author suspects attackers would likely optimize their attempts in a number o
 1. Use a smaller threshold count for permutation iteration based on known threshold norms used in popular secret construction implementations.
 2. Spawn multiple threads/jobs (one per combination?) to iterate the permutations against all unique, non-repeating combination of the selected threshold. The assumption of the author is that iteration of permutations and input/share assembly across multiple share combination sets in parallel would reach a match sooner by compounding match distribution probabilities.
 
-In our example case, the user created 12 shares (_n_), thus (without optimization) the attacker would be required to iterate all permutations of an assumed 1 million input message space using 11 as the set section size (_n - 1_). The number of bits is then equal to the log 2 result of the number of permutations.
+In our example case, the user created 12 shares (_n_), thus (without optimization) the attacker would be required to iterate all permutations of an assumed 100k input message space using 11 as the set section size (_n - 1_). The number of bits is then equal to the log 2 result of the number of permutations.
 
 <!--
 $$
   {
     \log_{2}(
-      {\mathcal{V}_{11}(1,000,000) \over{\mathcal{C}_{11}(12)}}
-    ) = 215.66
+      {\mathcal{V}_{11}(100,000) \over{\mathcal{C}_{11}(12)}}
+    ) = 179.12
   }
 $$
 -->

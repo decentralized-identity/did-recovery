@@ -120,7 +120,7 @@ $$
 $$
 -->
 
-![Entropy Equation](images/entropy-equation.png)
+<img src="images/entropy-equation.png" alt="Entropy Equation" width="200px"/>
 
 The author suspects attackers would likely optimize their attempts in a number of ways:
 
@@ -139,10 +139,11 @@ $$
 $$
 -->
 
-![Attacker Entropy Example](images/attacker-entropy-example.png)
+<img src="images/attacker-entropy-example.png" alt="Attacker Entropy Example" width="280px"/>
 
 In contrast, the user is only required to iterate and attempt share reassembly for the number of permutations based on the inputs they recollect. We'll assume the user entered 14 inputs, a worst case condition that only 8 were correct, and use a set selection size that exactly matches the threshold they used:
 
+<!--
 $$
   {
     \log_{2}(
@@ -150,8 +151,9 @@ $$
     ) = 26.85
   }
 $$
+-->
 
-![User Entropy Example](images/user-entropy-example.gif)
+<img src="images/user-entropy-example.png" alt="User Entropy Example" width="230px"/>
 
 There are a number of important questions as we consider the viability of this construction:
 

@@ -1,6 +1,6 @@
 {
-  "name": "hdf-secrets",
-  "description": "Honey-Dipped Fuzzy Secrets",
+  "name": "fuzzy-factor-encryption",
+  "description": "Fuzzy Factor Encryption - multi-factor encryption scheme that allows for variation in recollected recovery inputs.",
   "version": "0.0.1",
   "homepage": "http://identity.foundation",
   "license": "Apache 2",

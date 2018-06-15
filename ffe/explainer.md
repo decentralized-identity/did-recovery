@@ -1,4 +1,4 @@
-# Sweet Fuzzy Secrets
+# Fuzzy Factor Encryption
 
 <div align="center">Daniel Buchner</div>
 <div align="center">May 1, 2018</div>

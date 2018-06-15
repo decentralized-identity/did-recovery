@@ -1,9 +1,9 @@
 # Sweet Fuzzy Secrets
 
-<center>Daniel Buchner</center>
-<center>May 1, 2018</center>
+<center align="center">Daniel Buchner</center>
+<center align="center">May 1, 2018</center>
 
-### <center>Abstract</center>
+### <center align="center">Abstract</center>
 Systems where users are responsible for ownership and management of sensitive data (e.g. private keys) have long suffered a lack of human-friendly mechanisms for access, storage, and recovery. Existing solutions, such as Password-based Encryption (PBE), threshold secret sharing (e.g. Shamir), and hardware factors are all subject to negative tradeoffs in security and ease of use that degrade their viability for non-technical users. This paper introduces the possibility of a new scheme that may enable more human-friendly key management paradigms.
 
 The scheme proposed in this paper seeks to provide secure storage and regeneration of sensitive data by allowing fuzzy recollection and recombination of an T threshold of user-selected, human-meaningful inputs, wherein recollection needn't precisely match the original set of N total human-meaningful inputs. This scheme uses a simple format-preserving transform that merges a set of N human-meaningful inputs with a matching number secret share values (e.g. 32 byte hexidecimal strings) to generate altered values that can only be effectively recombine when T threshold of N original human-meaningful inputs are provided. Example: imagine being able to describe an experience from your life, for which you know intimate, secret aspects, and use that to secure a piece of sensitive data in a way that allows you to recollect the same experience with some variability and still recover the data. That is but one example - this construction allows for almost any form of input to be used as a factor, including: user-meaningful passphrases, GPS locations, PIN numbers, biometric values, etc.
@@ -31,6 +31,8 @@ Secret: `007`
 Passphrase: `I sat next to Chef Morimoto at the bar in Cin Cin restaurant and got his autograph on a napkin. He was with the head chef from the restaurant he opened in Napa.`
 
 In common PBE schemes, the passphrase above would need to be input exactly as originally entered, which is a significant barrier to human-friendly use. While these schemes are useful in some cases, we seek a method that allows for fuzzy variability of input that still results in the recovery of the encrypted secret. To do so, we'll need more than just a simple PBE scheme.
+
+> NOTE: Keep in mind that any combination of any type of factors can be used. The use of words (to form a passphrase, in this instance) as factors is just one type. A factor can be any value that resolves to decimal notation.
 
 ### Format-Preserving Transformation of Threshold Shares
 

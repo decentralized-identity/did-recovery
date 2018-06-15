@@ -1,9 +1,9 @@
 # Sweet Fuzzy Secrets
 
-<center align="center">Daniel Buchner</center>
-<center align="center">May 1, 2018</center>
+<div align="center">Daniel Buchner</div>
+<div align="center">May 1, 2018</div>
 
-### <center align="center">Abstract</center>
+### <div align="center">Abstract</div>
 Systems where users are responsible for ownership and management of sensitive data (e.g. private keys) have long suffered a lack of human-friendly mechanisms for access, storage, and recovery. Existing solutions, such as Password-based Encryption (PBE), threshold secret sharing (e.g. Shamir), and hardware factors are all subject to negative tradeoffs in security and ease of use that degrade their viability for non-technical users. This paper introduces the possibility of a new scheme that may enable more human-friendly key management paradigms.
 
 The scheme proposed in this paper seeks to provide secure storage and regeneration of sensitive data by allowing fuzzy recollection and recombination of an T threshold of user-selected, human-meaningful inputs, wherein recollection needn't precisely match the original set of N total human-meaningful inputs. This scheme uses a simple format-preserving transform that merges a set of N human-meaningful inputs with a matching number secret share values (e.g. 32 byte hexidecimal strings) to generate altered values that can only be effectively recombine when T threshold of N original human-meaningful inputs are provided. Example: imagine being able to describe an experience from your life, for which you know intimate, secret aspects, and use that to secure a piece of sensitive data in a way that allows you to recollect the same experience with some variability and still recover the data. That is but one example - this construction allows for almost any form of input to be used as a factor, including: user-meaningful passphrases, GPS locations, PIN numbers, biometric values, etc.

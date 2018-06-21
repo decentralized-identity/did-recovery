@@ -1,4 +1,4 @@
-# Fuzzy Factor Encryption
+# Sweet Fuzzy Secrets
 
 <div align="center">Daniel Buchner</div>
 <div align="center">May 1, 2018</div>
@@ -17,7 +17,7 @@ The mechanism of fuzzy recombination of inputs for regeneration of sensitive dat
 **Honey Encryption** is a scheme first introduced by Juels and Ristenpart [4] that proposed a means to achieve security for low-entropy keys, even when an attacker has access to the ciphertext and can attempt to decrypt with all possible/probable keys. Honey Encryption (HE) does this by ensuring all plaintexts generated during a brute-force attack look plausible across a target distribution of expected outputs. Juels and Ristenpart also provided a framework for building HE schemes, including the composition of distribution-transforming encoders (DTE). A DTE is a form of randomized encoding scheme that is specifically constructed to output values in accordance with a target distribution of a given value type. Research of various Honey Encryption variants inspired the 'fuzzy' threshold portion of the scheme outlined in this paper.
 
 **Secret sharing** (also called secret splitting) refers to methods for distributing a secret amongst a group of participants or destinations, each of whom is allocated a share of the secret. The secret can be reconstructed only when a sufficient number of shares are combined together; individual shares are of no use on their own.
-
+Procedural Steps
 In one type of secret sharing scheme there is one dealer and N players. The dealer gives a share of the secret to the players, but only when specific conditions are fulfilled will the players be able to reconstruct the secret from their shares. The dealer accomplishes this by giving each player a share in such a way that any threshold of T or more players can together reconstruct the secret, but no group of fewer than T players can. Such a system is called a (T, N)-threshold scheme. [5] Secret sharing was invented independently by Adi Shamir [6] and George Blakley [7] in 1979.
 
 ## Overview of the Construction

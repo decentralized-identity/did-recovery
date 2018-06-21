@@ -159,16 +159,17 @@ function attemptRecovery(inputs, payload){
   killWorkers();
   var workerID = 0;
   var workerCount = 0;
-  var workerLimit = 5;
+  var workerLimit = 2;
   var guessCount = 0;
   var secretFound = false;
   var start = new Date().getTime();
   var shares = payload.shares.map(share => hexdec.hexToDec(share.data));
   var inputs = inputs.map(input => hexdec.wordToDec(input.toLowerCase()));
   var inputCombinations = Combinatorics.combination(inputs, payload.threshold);
+  var inputCombinationsReversed = Combinatorics.combination(inputs.reverse(), payload.threshold);
 
   function fireWorker(inputSet){
-    let worker = new Worker('js/worker.js')
+    let worker = new Worker('js/worker.js');
     workerCount++;
     workers[workerID++] = worker;
     worker.onmessage = workerResponse;
@@ -201,6 +202,8 @@ function attemptRecovery(inputs, payload){
   while (workerCount < workerLimit) {
     let inputSet = inputCombinations.next();
     if (inputSet) fireWorker(inputSet);
+    let reverseInputSet = inputCombinationsReversed.next();
+    if (reverseInputSet) fireWorker(reverseInputSet);
   }
 }
 
